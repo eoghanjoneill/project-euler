@@ -7,10 +7,7 @@ import 'rxjs/add/operator/toPromise';
 @Injectable()
 export class CalculationService {
 
-  public questions = [];
-  private getQuestions() {
-    return this.http.get('./questions.json');
-  }
+  private solutions = [this.q1SumMultiples, this.q2EvenFibonacci];
 
   constructor(private http: HttpClient) {
   }
@@ -18,11 +15,12 @@ export class CalculationService {
   async executeQuestions(): Promise<IAnswer[]> {
     const questions = await this.http.get('/assets/questions.json').toPromise();
     const answers: IAnswer[] = [];
-    answers.push({'answer': '' + this.q1SumMultiples(), 'question': this.questions[0]});
-    answers.push({'answer': 'answer 2', 'question': 'q2'});
+    this.solutions.forEach((element, idx) => {
+      answers.push({'answer': '' + element.call(this), 'question': questions[idx].question});
+    });
     return answers;
   }
-
+ 
   /**
    * q1SumMultiples
    * If we list all the natural numbers below 10 that are multiples of 3 or 5, we get 3, 5, 6 and 9. The sum of these multiples is 23.
@@ -37,6 +35,19 @@ export class CalculationService {
           break;
         }
       }
+    }
+    return total;
+  }
+
+  q2EvenFibonacci(max: number = (4 * 10 ** 6)): number {
+    let total = 0, curFib = 2, prevFib = 1;
+    while (curFib <= max) {
+      if (curFib % 2 === 0) {
+        total += curFib;
+      }
+      let temp = curFib;
+      curFib = curFib + prevFib;
+      prevFib = temp;
     }
     return total;
   }

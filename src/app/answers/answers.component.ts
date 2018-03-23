@@ -12,7 +12,7 @@ export class AnswersComponent implements OnInit {
   constructor(private _calcService: CalculationService) { }
 
   ngOnInit() {
-   this._calcService.executeQuestions().then(val => this. answers = val);
+   this._calcService.executeQuestions().then(val => this.answers = val);
   }
 
 }
