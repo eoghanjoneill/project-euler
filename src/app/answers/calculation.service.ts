@@ -7,25 +7,13 @@ import 'rxjs/add/operator/toPromise';
 @Injectable()
 export class CalculationService {
 
-  private solutions = [this.q1SumMultiples, this.q2EvenFibonacci];
+  constructor(private http: HttpClient) { }
 
-  constructor(private http: HttpClient) {
-  }
+  private solutions = [this.q1SumMultiples,
+          this.q2EvenFibonacci,
+          this.q3LargestPrimeFactor,
+        ];
 
-  async executeQuestions(): Promise<IAnswer[]> {
-    const questions = await this.http.get('/assets/questions.json').toPromise();
-    const answers: IAnswer[] = [];
-    this.solutions.forEach((element, idx) => {
-      answers.push({'answer': '' + element.call(this), 'question': questions[idx].question});
-    });
-    return answers;
-  }
- 
-  /**
-   * q1SumMultiples
-   * If we list all the natural numbers below 10 that are multiples of 3 or 5, we get 3, 5, 6 and 9. The sum of these multiples is 23.
-   * Find the sum of all the multiples of 3 or 5 below 1000.
-   */
   q1SumMultiples(multiples: number[] = [3, 5], below: number = 1000): number {
     let total = 0;
     for (let i = 1; i < below; i++) {
@@ -40,15 +28,64 @@ export class CalculationService {
   }
 
   q2EvenFibonacci(max: number = (4 * 10 ** 6)): number {
-    let total = 0, curFib = 2, prevFib = 1;
+    let total = 0, curFib = 2, prevFib = 1, temp;
     while (curFib <= max) {
       if (curFib % 2 === 0) {
         total += curFib;
       }
-      let temp = curFib;
+      temp = curFib;
       curFib = curFib + prevFib;
       prevFib = temp;
     }
     return total;
+  }
+
+  q3LargestPrimeFactor(n: number = 600851475143): number { // 600851475143
+    const factors = [];
+    let f = 2; // first possible prime factor
+    while (n > 1) {
+      if (n % f === 0) {
+        factors.push(f);
+        n /= f;
+      } else {
+        f++;
+      }
+    }
+    console.log('factors: ' + factors.toString());
+    return factors[factors.length - 1];
+  }
+
+  q4LargestPalindrome(): number {
+    let pal = 0;
+    let startFrom = 999 ** 2;
+    while (startFrom > 0) {
+      if (isPalindrome(startFrom.toString())) {
+        //
+      } else {
+        startFrom --;
+      }
+    }
+    return 0;
+
+    function isPalindrome(s: string): boolean {
+
+      while (s.length > 0) {
+        if (s[0] === s[s.length - 1]) {
+          s = s.substr(1, s.length - 2);
+        } else {
+          return false;
+        }
+      }
+      return true;
+    }
+  }
+
+  async executeQuestions(): Promise<IAnswer[]> {
+    const questions = await this.http.get('/assets/questions.json').toPromise();
+    const answers: IAnswer[] = [];
+    this.solutions.forEach((element, idx) => {
+      answers.push({'answer': '' + element.call(this), 'question': questions[idx] ? questions[idx].question : ''});
+    });
+    return answers;
   }
 }

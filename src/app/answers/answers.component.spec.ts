@@ -1,6 +1,10 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { Injectable } from '@angular/core';
 
 import { AnswersComponent } from './answers.component';
+import { CalculationService } from './calculation.service';
+import { HttpClientModule } from '@angular/common/http';
+import { IAnswer } from './answer';
 
 describe('AnswersComponent', () => {
   let component: AnswersComponent;
@@ -8,7 +12,9 @@ describe('AnswersComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ AnswersComponent ]
+      declarations: [ AnswersComponent ],
+      providers: [ {provide: CalculationService, useClass: MockCalcService} ],
+      imports: [ HttpClientModule ]
     })
     .compileComponents();
   }));
@@ -23,3 +29,13 @@ describe('AnswersComponent', () => {
     expect(component).toBeTruthy();
   });
 });
+
+@Injectable()
+class MockCalcService {
+  async executeQuestions(): Promise<IAnswer[]> {
+    return [
+      {'question': 'q1', 'answer': 'a1'},
+      {'question': 'q2', 'answer': 'a2'}
+    ];
+  }
+}
