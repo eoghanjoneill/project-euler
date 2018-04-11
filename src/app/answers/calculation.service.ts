@@ -1,8 +1,12 @@
 import { Injectable } from '@angular/core';
 import { IAnswer } from '../answers/answer';
 import { HttpClient } from '@angular/common/http';
-import {Observable} from 'rxjs/Rx';
+import { Observable } from 'rxjs/Rx';
 import 'rxjs/add/operator/toPromise';
+import 'rxjs/add/observable/fromPromise';
+import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/mergeMap';
+import { ObserveOnOperator } from 'rxjs/operators/observeOn';
 
 @Injectable()
 export class CalculationService {
@@ -15,6 +19,7 @@ export class CalculationService {
           this.q4LargestPalindrome,
           this.q5SmallestMultiple
         ];
+  private questions;
 
   q1SumMultiples(multiples: number[] = [3, 5], below: number = 1000): number {
     let total = 0;
@@ -115,12 +120,25 @@ export class CalculationService {
     return multiple;
   }
 
-  async executeQuestions(): Promise<IAnswer[]> {
-    const questions = await this.http.get('/assets/questions.json').toPromise();
-    const answers: IAnswer[] = [];
-    this.solutions.forEach((element, idx) => {
-      answers.push({'answer': '' + element.call(this), 'question': questions[idx] ? questions[idx].question : ''});
+  getQuestions(): Promise<any> {
+    if (this.questions) {
+      return this.questions;
+    } else {
+      return this.http.get('/assets/questions.json').toPromise().then(data => {
+        this.questions = data;
+        return this.questions;
+      });
+    }
+  }
+
+  executeQuestions(): Observable<IAnswer> {
+    return Observable.create(observer => {
+      this.http.get('/assets/questions.json').toPromise().then(questions => {
+        this.solutions.forEach((element, idx) => {
+          observer.next({'answer': '' + element.call(this), 'question': questions[idx] ? questions[idx].question : ''});
+          // observer.complete();
+        });
+      });
     });
-    return answers;
   }
 }

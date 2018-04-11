@@ -5,6 +5,7 @@ import { AnswersComponent } from './answers.component';
 import { CalculationService } from './calculation.service';
 import { HttpClientModule } from '@angular/common/http';
 import { IAnswer } from './answer';
+import { Observable } from 'rxjs/Observable';
 
 describe('AnswersComponent', () => {
   let component: AnswersComponent;
@@ -32,10 +33,10 @@ describe('AnswersComponent', () => {
 
 @Injectable()
 class MockCalcService {
-  async executeQuestions(): Promise<IAnswer[]> {
-    return [
+   executeQuestions(): Observable<IAnswer[]> {
+    return Observable.of([
       {'question': 'q1', 'answer': 'a1'},
       {'question': 'q2', 'answer': 'a2'}
-    ];
+    ]);
   }
 }
